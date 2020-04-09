@@ -12,9 +12,11 @@
 #ifndef __REAL_H__
 #define __REAL_H__
 
+#include <stddef.h>
+#include <stdlib.h>
+
 #include <float.h>
 #include <math.h>
-#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C" {
