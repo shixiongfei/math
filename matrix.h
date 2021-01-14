@@ -225,17 +225,18 @@ void mat33_rotatey(mat33_t r, real_t theta);
 void mat33_rotatez(mat33_t r, real_t theta);
 void mat33_rotateaxis(mat33_t r, real_t theta, vec3_t axis);
 
-#define mat33_from44(r, e)                                                     \
+#define mat33_tomat44(r4, e3)                                                  \
   do {                                                                         \
-    e0(r) = e0(e);                                                             \
-    e1(r) = e1(e);                                                             \
-    e2(r) = e2(e);                                                             \
-    e3(r) = e4(e);                                                             \
-    e4(r) = e5(e);                                                             \
-    e5(r) = e6(e);                                                             \
-    e6(r) = e8(e);                                                             \
-    e7(r) = e9(e);                                                             \
-    e8(r) = e10(e);                                                            \
+    mat44_identity(r4);                                                        \
+    e0(r4) = e0(e3);                                                           \
+    e1(r4) = e1(e3);                                                           \
+    e2(r4) = e2(e3);                                                           \
+    e4(r4) = e3(e3);                                                           \
+    e5(r4) = e4(e3);                                                           \
+    e6(r4) = e5(e3);                                                           \
+    e8(r4) = e6(e3);                                                           \
+    e9(r4) = e7(e3);                                                           \
+    e10(r4) = e8(e3);                                                          \
   } while (0)
 
 /**
@@ -476,18 +477,17 @@ void mat44_perspective(mat44_t r, real_t fovy, real_t aspect, real_t near,
                        real_t far);
 void mat44_lookat(mat44_t r, vec3_t eye, vec3_t target, vec3_t up);
 
-#define mat44_from33(r, e)                                                     \
+#define mat44_tomat33(r3, e4)                                                  \
   do {                                                                         \
-    mat44_identity(r);                                                         \
-    e0(r) = e0(e);                                                             \
-    e1(r) = e1(e);                                                             \
-    e2(r) = e2(e);                                                             \
-    e4(r) = e3(e);                                                             \
-    e5(r) = e4(e);                                                             \
-    e6(r) = e5(e);                                                             \
-    e8(r) = e6(e);                                                             \
-    e9(r) = e7(e);                                                             \
-    e10(r) = e8(e);                                                            \
+    e0(r3) = e0(e4);                                                           \
+    e1(r3) = e1(e4);                                                           \
+    e2(r3) = e2(e4);                                                           \
+    e3(r3) = e4(e4);                                                           \
+    e4(r3) = e5(e4);                                                           \
+    e5(r3) = e6(e4);                                                           \
+    e6(r3) = e8(e4);                                                           \
+    e7(r3) = e9(e4);                                                           \
+    e8(r3) = e10(e4);                                                          \
   } while (0)
 
 #ifdef __cplusplus
