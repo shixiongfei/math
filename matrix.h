@@ -65,6 +65,10 @@ typedef real_t mat44_t[16];
 
 #define mat22_zero(e) memset(e, 0, sizeof(real_t) * 4)
 
+#define mat22_equal(a, b)                                                      \
+  (r_equal(e0(a), e0(b)) && r_equal(e1(a), e1(b)) && r_equal(e2(a), e2(b)) &&  \
+   r_equal(e3(a), e3(b)))
+
 #define mat22_identity(e)                                                      \
   do {                                                                         \
     mat22_zero(e);                                                             \
@@ -124,6 +128,11 @@ void mat22_rotation(mat22_t r, real_t theta);
  **/
 
 #define mat33_zero(e) memset(e, 0, sizeof(real_t) * 9)
+
+#define mat33_equal(a, b)                                                      \
+  (r_equal(e0(a), e0(b)) && r_equal(e1(a), e1(b)) && r_equal(e2(a), e2(b)) &&  \
+   r_equal(e3(a), e3(b)) && r_equal(e4(a), e4(b)) && r_equal(e5(a), e5(b)) &&  \
+   r_equal(e6(a), e6(b)) && r_equal(e7(a), e7(b)) && r_equal(e8(a), e8(b)))
 
 #define mat33_identity(e)                                                      \
   do {                                                                         \
@@ -246,6 +255,15 @@ void mat33_rotateaxis(mat33_t r, real_t theta, vec3_t axis);
  **/
 
 #define mat44_zero(e) memset(e, 0, sizeof(real_t) * 16)
+
+#define mat44_equal(a, b)                                                      \
+  (r_equal(e0(a), e0(b)) && r_equal(e1(a), e1(b)) && r_equal(e2(a), e2(b)) &&  \
+   r_equal(e3(a), e3(b)) && r_equal(e4(a), e4(b)) && r_equal(e5(a), e5(b)) &&  \
+   r_equal(e6(a), e6(b)) && r_equal(e7(a), e7(b)) && r_equal(e8(a), e8(b)) &&  \
+   r_equal(e9(a), e9(b)) && r_equal(e10(a), e10(b)) &&                         \
+   r_equal(e11(a), e11(b)) && r_equal(e12(a), e12(b)) &&                       \
+   r_equal(e13(a), e13(b)) && r_equal(e14(a), e14(b)) &&                       \
+   r_equal(e15(a), e15(b)))
 
 #define mat44_identity(e)                                                      \
   do {                                                                         \
