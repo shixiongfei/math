@@ -3,7 +3,7 @@
  *
  *  copyright (c) 2019-2021 Xiongfei Shi
  *
- *  author: Xiongfei Shi <jenson.shixf(a)gmail.com>
+ *  author: Xiongfei Shi <xiongfei.shi(a)icloud.com>
  *  license: Apache-2.0
  *
  *  https://github.com/shixiongfei/math
@@ -29,6 +29,7 @@ typedef double real_t;
 #define r_one 1.0
 #define r_two 2.0
 #define r_negone -1.0
+#define r_360 360.0
 #define r_epsilon DBL_EPSILON
 #define r_pi 3.14159265358979323846
 #define r_deg (180.0 / r_pi)

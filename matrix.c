@@ -3,7 +3,7 @@
  *
  *  copyright (c) 2019-2021 Xiongfei Shi
  *
- *  author: Xiongfei Shi <jenson.shixf(a)gmail.com>
+ *  author: Xiongfei Shi <xiongfei.shi(a)icloud.com>
  *  license: Apache-2.0
  *
  *  https://github.com/shixiongfei/math
@@ -172,15 +172,57 @@ void mat44_ortho(mat44_t r, real_t left, real_t right, real_t bottom,
   e14(r) = -fpn / fmn;
 }
 
-void mat44_perspective(mat44_t r, real_t fovy, real_t aspect, real_t near,
-                       real_t far) {
-  real_t f = r_tan(r_pi / r_two - fovy / r_two);
+void mat44_frustum(mat44_t r, real_t left, real_t right, real_t bottom,
+                   real_t top, real_t near, real_t far) {
+  real_t rl = right - left;
+  real_t tb = top - bottom;
+  real_t fn = far - near;
 
   mat44_zero(r);
 
-  e0(r) = f / aspect;
-  e5(r) = f;
-  e10(r) = (far + near) / (near - far);
-  e11(r) = (r_two * far * near) / (near - far);
-  e14(r) = -r_one;
+  e0(r) = (near * r_two) / rl;
+  e5(r) = (near * r_two) / tb;
+  e8(r) = (right + left) / rl;
+  e9(r) = (top + bottom) / tb;
+  e10(r) = -(far + near) / fn;
+  e11(r) = -r_one;
+  e14(r) = -(far * near * r_two) / fn;
+}
+
+void mat44_perspective(mat44_t r, real_t fovy, real_t aspect, real_t near,
+                       real_t far) {
+  real_t top = near * r_tan(fovy * r_pi / r_360);
+  real_t right = top * aspect;
+
+  mat44_frustum(r, -right, right, -top, top, near, far);
+}
+
+void mat44_lookat(mat44_t r, vec3_t eye, vec3_t target, vec3_t up) {
+  vec3_t focal, x, y, z;
+
+  vec3_sub(focal, target, eye);
+  vec3_normalize(focal, r_one);
+
+  vec3_cross(x, focal, up);
+  vec3_normalize(x, r_one);
+
+  vec3_cross(y, x, focal);
+  vec3_neg(z, focal);
+
+  mat44_identity(r);
+
+  e0(r) = vx(x);
+  e4(r) = vy(x);
+  e8(r) = vz(x);
+  e12(r) = -vec3_dot(x, eye);
+
+  e1(r) = vx(y);
+  e5(r) = vy(y);
+  e9(r) = vz(y);
+  e13(r) = -vec3_dot(y, eye);
+
+  e2(r) = vx(z);
+  e6(r) = vy(z);
+  e10(r) = vz(z);
+  e14(r) = -vec3_dot(z, eye);
 }

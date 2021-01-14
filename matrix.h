@@ -3,7 +3,7 @@
  *
  *  copyright (c) 2019-2021 Xiongfei Shi
  *
- *  author: Xiongfei Shi <jenson.shixf(a)gmail.com>
+ *  author: Xiongfei Shi <xiongfei.shi(a)icloud.com>
  *  license: Apache-2.0
  *
  *  https://github.com/shixiongfei/math
@@ -470,8 +470,11 @@ void mat44_transformation(mat44_t r, real_t x, real_t y, real_t theta,
 
 void mat44_ortho(mat44_t r, real_t left, real_t right, real_t bottom,
                  real_t top, real_t near, real_t far);
+void mat44_frustum(mat44_t r, real_t left, real_t right, real_t bottom,
+                   real_t top, real_t near, real_t far);
 void mat44_perspective(mat44_t r, real_t fovy, real_t aspect, real_t near,
                        real_t far);
+void mat44_lookat(mat44_t r, vec3_t eye, vec3_t target, vec3_t up);
 
 #define mat44_from33(r, e)                                                     \
   do {                                                                         \
