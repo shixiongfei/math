@@ -1,7 +1,7 @@
 /*
  *  quaternion.h
  *
- *  copyright (c) 2019 Xiongfei Shi
+ *  copyright (c) 2019-2021 Xiongfei Shi
  *
  *  author: Xiongfei Shi <jenson.shixf(a)gmail.com>
  *  license: Apache-2.0
@@ -93,8 +93,7 @@ typedef real_t quat_t[4];
 #define quat_dot(a, b)                                                         \
   (qw(a) * qw(b) + qx(a) * qx(b) + qy(a) * qy(b) + qz(a) * qz(b))
 
-/* qw,qx,qy,qz = qw*(length/qlen), qx*(length/qlen), qy*(length/qlen),
- * qz*(length/qlen) */
+/* qw,qx,qy,qz = qw*(len/qlen), qx*(len/qlen), qy*(len/qlen), qz*(len/qlen) */
 real_t quat_normalize(quat_t q, real_t length);
 
 void quat_slerp(quat_t r, const quat_t from, const quat_t to, real_t t);

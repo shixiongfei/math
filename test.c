@@ -1,7 +1,7 @@
 /*
  *  test.c
  *
- *  copyright (c) 2019 Xiongfei Shi
+ *  copyright (c) 2019-2021 Xiongfei Shi
  *
  *  author: Xiongfei Shi <jenson.shixf(a)gmail.com>
  *  license: Apache-2.0
@@ -26,18 +26,20 @@ static void print_vec4(const vec4_t v) {
   printf("vec4(%lf %lf %lf %lf)\n", vx(v), vy(v), vz(v), vw(v));
 }
 
+static void print_mat22(const mat22_t m) {
+  printf("mat22(\n %lf %lf,\n %lf %lf)\n", e0(m), e2(m), e1(m), e3(m));
+}
+
 static void print_mat33(const mat33_t m) {
-  printf("mat33(\n %lf %lf %lf,\n %lf %lf %lf,\n %lf %lf %lf)\n", m3e11(m),
-         m3e12(m), m3e13(m), m3e21(m), m3e22(m), m3e23(m), m3e31(m), m3e32(m),
-         m3e33(m));
+  printf("mat33(\n %lf %lf %lf,\n %lf %lf %lf,\n %lf %lf %lf)\n", e0(m), e3(m),
+         e6(m), e1(m), e4(m), e7(m), e2(m), e5(m), e8(m));
 }
 
 static void print_mat44(const mat44_t m) {
   printf("mat44(\n %lf %lf %lf %lf,\n %lf %lf %lf %lf,\n %lf %lf %lf %lf,\n "
          "%lf %lf %lf %lf)\n",
-         m4e11(m), m4e12(m), m4e13(m), m4e14(m), m4e21(m), m4e22(m), m4e23(m),
-         m4e24(m), m4e31(m), m4e32(m), m4e33(m), m4e34(m), m4e41(m), m4e42(m),
-         m4e43(m), m4e44(m));
+         e0(m), e4(m), e8(m), e12(m), e1(m), e5(m), e9(m), e13(m), e2(m), e6(m),
+         e10(m), e14(m), e3(m), e7(m), e11(m), e15(m));
 }
 
 static void print_quat(const quat_t q) {

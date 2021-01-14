@@ -1,7 +1,7 @@
 /*
  *  quaternion.c
  *
- *  copyright (c) 2019 Xiongfei Shi
+ *  copyright (c) 2019-2021 Xiongfei Shi
  *
  *  author: Xiongfei Shi <jenson.shixf(a)gmail.com>
  *  license: Apache-2.0
@@ -70,17 +70,17 @@ void quat_tomatrix(mat33_t m, const quat_t q) {
   real_t wy = qw(q) * qy(q);
   real_t wz = qw(q) * qz(q);
 
-  m3e11(m) = r_one - r_two * (yy + zz);
-  m3e12(m) = r_two * (xy - wz);
-  m3e13(m) = r_two * (xz + wy);
+  e0(m) = r_one - r_two * (yy + zz);
+  e3(m) = r_two * (xy - wz);
+  e6(m) = r_two * (xz + wy);
 
-  m3e21(m) = r_two * (xy + wz);
-  m3e22(m) = r_one - r_two * (xx + zz);
-  m3e23(m) = r_two * (yz - wx);
+  e1(m) = r_two * (xy + wz);
+  e4(m) = r_one - r_two * (xx + zz);
+  e7(m) = r_two * (yz - wx);
 
-  m3e31(m) = r_two * (xz - wy);
-  m3e32(m) = r_two * (yz + wx);
-  m3e33(m) = r_one - r_two * (xx + yy);
+  e2(m) = r_two * (xz - wy);
+  e5(m) = r_two * (yz + wx);
+  e8(m) = r_one - r_two * (xx + yy);
 }
 
 void quat_toeuler(vec3_t r, const quat_t q) {

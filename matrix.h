@@ -1,7 +1,7 @@
 /*
  *  matrix.h
  *
- *  copyright (c) 2019 Xiongfei Shi
+ *  copyright (c) 2019-2021 Xiongfei Shi
  *
  *  author: Xiongfei Shi <jenson.shixf(a)gmail.com>
  *  license: Apache-2.0
@@ -20,6 +20,12 @@ extern "C" {
 #endif
 
 /**
+ * | e0  e2 |
+ * | e1  e3 |
+ **/
+typedef real_t mat22_t[4];
+
+/**
  * | e0  e3  e6 |
  * | e1  e4  e7 |
  * | e2  e5  e8 |
@@ -27,39 +33,89 @@ extern "C" {
 typedef real_t mat33_t[9];
 
 /**
- * | e0 e4 e8  e12 |
- * | e1 e5 e9  e13 |
- * | e2 e6 e10 e14 |
- * | e3 e7 e11 e15 |
+ * | e0  e4   e8  e12 |
+ * | e1  e5   e9  e13 |
+ * | e2  e6  e10  e14 |
+ * | e3  e7  e11  e15 |
  **/
 typedef real_t mat44_t[16];
 
-#define m3e11(e) e[0]
-#define m3e21(e) e[1]
-#define m3e31(e) e[2]
-#define m3e12(e) e[3]
-#define m3e22(e) e[4]
-#define m3e32(e) e[5]
-#define m3e13(e) e[6]
-#define m3e23(e) e[7]
-#define m3e33(e) e[8]
+#define e0(e) e[0]
+#define e1(e) e[1]
+#define e2(e) e[2]
+#define e3(e) e[3]
+#define e4(e) e[4]
+#define e5(e) e[5]
+#define e6(e) e[6]
+#define e7(e) e[7]
+#define e8(e) e[8]
+#define e9(e) e[9]
+#define e10(e) e[10]
+#define e11(e) e[11]
+#define e12(e) e[12]
+#define e13(e) e[13]
+#define e14(e) e[14]
+#define e15(e) e[15]
 
-#define m4e11(e) e[0]
-#define m4e21(e) e[1]
-#define m4e31(e) e[2]
-#define m4e41(e) e[3]
-#define m4e12(e) e[4]
-#define m4e22(e) e[5]
-#define m4e32(e) e[6]
-#define m4e42(e) e[7]
-#define m4e13(e) e[8]
-#define m4e23(e) e[9]
-#define m4e33(e) e[10]
-#define m4e43(e) e[11]
-#define m4e14(e) e[12]
-#define m4e24(e) e[13]
-#define m4e34(e) e[14]
-#define m4e44(e) e[15]
+/**
+ *---------------------------------------------
+ *  Matrix22
+ *---------------------------------------------
+ **/
+
+#define mat22_zero(e) memset(e, 0, sizeof(real_t) * 4)
+
+#define mat22_identity(e)                                                      \
+  do {                                                                         \
+    mat22_zero(e);                                                             \
+    e0(e) = e3(e) = r_one;                                                     \
+  } while (0)
+
+#define mat22_add(r, a, b)                                                     \
+  do {                                                                         \
+    e0(r) = e0(a) + e0(b);                                                     \
+    e1(r) = e1(a) + e1(b);                                                     \
+    e2(r) = e2(a) + e2(b);                                                     \
+    e3(r) = e3(a) + e3(b);                                                     \
+  } while (0)
+
+#define mat22_sub(r, a, b)                                                     \
+  do {                                                                         \
+    e0(r) = e0(a) - e0(b);                                                     \
+    e1(r) = e1(a) - e1(b);                                                     \
+    e2(r) = e2(a) - e2(b);                                                     \
+    e3(r) = e3(a) - e3(b);                                                     \
+  } while (0)
+
+#define mat22_mul(r, a, b)                                                     \
+  do {                                                                         \
+    e0(r) = e0(a) * e0(b) + e2(a) * e1(b);                                     \
+    e1(r) = e1(a) * e0(b) + e3(a) * e1(b);                                     \
+    e2(r) = e0(a) * e2(b) + e2(a) * e3(b);                                     \
+    e3(r) = e1(a) * e2(b) + e3(a) * e3(b);                                     \
+  } while (0)
+
+#define mat22_determinant(e) (e0(e) * e3(e) - e1(e) * e2(e))
+
+#define mat22_inverse(r, e)                                                    \
+  do {                                                                         \
+    real_t det = mat22_determinant(e);                                         \
+    det = r_one / det;                                                         \
+    e0(r) = det * e3(e);                                                       \
+    e1(r) = -det * e1(e);                                                      \
+    e2(r) = -det * e2(e);                                                      \
+    e3(r) = det * e0(e);                                                       \
+  } while (0)
+
+#define mat22_transpose(r, e)                                                  \
+  do {                                                                         \
+    e0(r) = e0(e);                                                             \
+    e1(r) = e2(e);                                                             \
+    e2(r) = e1(e);                                                             \
+    e3(r) = e3(e);                                                             \
+  } while (0)
+
+void mat22_rotation(mat22_t r, real_t theta);
 
 /**
  *---------------------------------------------
@@ -72,106 +128,115 @@ typedef real_t mat44_t[16];
 #define mat33_identity(e)                                                      \
   do {                                                                         \
     mat33_zero(e);                                                             \
-    m3e11(e) = m3e22(e) = m3e33(e) = r_one;                                    \
+    e0(e) = e4(e) = e8(e) = r_one;                                             \
   } while (0)
 
 #define mat33_add(r, a, b)                                                     \
   do {                                                                         \
-    m3e11(r) = m3e11(a) + m3e11(b);                                            \
-    m3e21(r) = m3e21(a) + m3e21(b);                                            \
-    m3e31(r) = m3e31(a) + m3e31(b);                                            \
-    m3e12(r) = m3e12(a) + m3e12(b);                                            \
-    m3e22(r) = m3e22(a) + m3e22(b);                                            \
-    m3e32(r) = m3e32(a) + m3e32(b);                                            \
-    m3e13(r) = m3e13(a) + m3e13(b);                                            \
-    m3e23(r) = m3e23(a) + m3e23(b);                                            \
-    m3e33(r) = m3e33(a) + m3e33(b);                                            \
+    e0(r) = e0(a) + e0(b);                                                     \
+    e1(r) = e1(a) + e1(b);                                                     \
+    e2(r) = e2(a) + e2(b);                                                     \
+    e3(r) = e3(a) + e3(b);                                                     \
+    e4(r) = e4(a) + e4(b);                                                     \
+    e5(r) = e5(a) + e5(b);                                                     \
+    e6(r) = e6(a) + e6(b);                                                     \
+    e7(r) = e7(a) + e7(b);                                                     \
+    e8(r) = e8(a) + e8(b);                                                     \
   } while (0)
 
 #define mat33_sub(r, a, b)                                                     \
   do {                                                                         \
-    m3e11(r) = m3e11(a) - m3e11(b);                                            \
-    m3e21(r) = m3e21(a) - m3e21(b);                                            \
-    m3e31(r) = m3e31(a) - m3e31(b);                                            \
-    m3e12(r) = m3e12(a) - m3e12(b);                                            \
-    m3e22(r) = m3e22(a) - m3e22(b);                                            \
-    m3e32(r) = m3e32(a) - m3e32(b);                                            \
-    m3e13(r) = m3e13(a) - m3e13(b);                                            \
-    m3e23(r) = m3e23(a) - m3e23(b);                                            \
-    m3e33(r) = m3e33(a) - m3e33(b);                                            \
+    e0(r) = e0(a) - e0(b);                                                     \
+    e1(r) = e1(a) - e1(b);                                                     \
+    e2(r) = e2(a) - e2(b);                                                     \
+    e3(r) = e3(a) - e3(b);                                                     \
+    e4(r) = e4(a) - e4(b);                                                     \
+    e5(r) = e5(a) - e5(b);                                                     \
+    e6(r) = e6(a) - e6(b);                                                     \
+    e7(r) = e7(a) - e7(b);                                                     \
+    e8(r) = e8(a) - e8(b);                                                     \
   } while (0)
 
 #define mat33_mul(r, a, b)                                                     \
   do {                                                                         \
-    m3e11(r) =                                                                 \
-        m3e11(a) * m3e11(b) + m3e12(a) * m3e21(b) + m3e13(a) * m3e31(b);       \
-    m3e12(r) =                                                                 \
-        m3e11(a) * m3e12(b) + m3e12(a) * m3e22(b) + m3e13(a) * m3e32(b);       \
-    m3e13(r) =                                                                 \
-        m3e11(a) * m3e13(b) + m3e12(a) * m3e23(b) + m3e13(a) * m3e33(b);       \
-    m3e21(r) =                                                                 \
-        m3e21(a) * m3e11(b) + m3e22(a) * m3e21(b) + m3e23(a) * m3e31(b);       \
-    m3e22(r) =                                                                 \
-        m3e21(a) * m3e12(b) + m3e22(a) * m3e22(b) + m3e23(a) * m3e32(b);       \
-    m3e23(r) =                                                                 \
-        m3e21(a) * m3e13(b) + m3e22(a) * m3e23(b) + m3e23(a) * m3e33(b);       \
-    m3e31(r) =                                                                 \
-        m3e31(a) * m3e11(b) + m3e32(a) * m3e21(b) + m3e33(a) * m3e31(b);       \
-    m3e32(r) =                                                                 \
-        m3e31(a) * m3e12(b) + m3e32(a) * m3e22(b) + m3e33(a) * m3e32(b);       \
-    m3e33(r) =                                                                 \
-        m3e31(a) * m3e13(b) + m3e32(a) * m3e23(b) + m3e33(a) * m3e33(b);       \
+    e0(r) = e0(a) * e0(b) + e3(a) * e1(b) + e6(a) * e2(b);                     \
+    e1(r) = e1(a) * e0(b) + e4(a) * e1(b) + e7(a) * e2(b);                     \
+    e2(r) = e2(a) * e0(b) + e5(a) * e1(b) + e8(a) * e2(b);                     \
+    e3(r) = e0(a) * e3(b) + e3(a) * e4(b) + e6(a) * e5(b);                     \
+    e4(r) = e1(a) * e3(b) + e4(a) * e4(b) + e7(a) * e5(b);                     \
+    e5(r) = e2(a) * e3(b) + e5(a) * e4(b) + e8(a) * e5(b);                     \
+    e6(r) = e0(a) * e6(b) + e3(a) * e7(b) + e6(a) * e8(b);                     \
+    e7(r) = e1(a) * e6(b) + e4(a) * e7(b) + e7(a) * e8(b);                     \
+    e8(r) = e2(a) * e6(b) + e5(a) * e7(b) + e8(a) * e8(b);                     \
   } while (0)
 
 #define mat33_determinant(e)                                                   \
-  (m3e11(e) * (m3e22(e) * m3e33(e) - m3e32(e) * m3e23(e)) -                    \
-   m3e21(e) * (m3e12(e) * m3e33(e) - m3e32(e) * m3e13(e)) +                    \
-   m3e31(e) * (m3e12(e) * m3e23(e) - m3e22(e) * m3e13(e)))
+  (e0(e) * (e4(e) * e8(e) - e7(e) * e5(e)) -                                   \
+   e1(e) * (e3(e) * e8(e) - e5(e) * e6(e)) +                                   \
+   e2(e) * (e3(e) * e7(e) - e4(e) * e6(e)))
 
 #define mat33_inverse(r, e)                                                    \
   do {                                                                         \
     real_t det = mat33_determinant(e);                                         \
     det = r_one / det;                                                         \
-    m3e11(r) = det * (m3e22(e) * m3e33(e) - m3e32(e) * m3e23(e));              \
-    m3e21(r) = -det * (m3e21(e) * m3e33(e) - m3e31(e) * m3e23(e));             \
-    m3e31(r) = det * (m3e21(e) * m3e32(e) - m3e31(e) * m3e22(e));              \
-    m3e12(r) = -det * (m3e12(e) * m3e33(e) - m3e32(e) * m3e13(e));             \
-    m3e22(r) = det * (m3e11(e) * m3e33(e) - m3e31(e) * m3e13(e));              \
-    m3e32(r) = -det * (m3e11(e) * m3e32(e) - m3e31(e) * m3e12(e));             \
-    m3e13(r) = det * (m3e12(e) * m3e23(e) - m3e22(e) * m3e13(e));              \
-    m3e23(r) = -det * (m3e11(e) * m3e23(e) - m3e21(e) * m3e13(e));             \
-    m3e33(r) = det * (m3e11(e) * m3e22(e) - m3e21(e) * m3e12(e));              \
+    e0(r) = det * (e4(e) * e8(e) - e7(e) * e5(e));                             \
+    e1(r) = -det * (e3(e) * e8(e) - e5(e) * e6(e));                            \
+    e2(r) = det * (e3(e) * e7(e) - e6(e) * e4(e));                             \
+    e3(r) = -det * (e1(e) * e8(e) - e2(e) * e7(e));                            \
+    e4(r) = det * (e0(e) * e8(e) - e2(e) * e6(e));                             \
+    e5(r) = -det * (e0(e) * e7(e) - e6(e) * e1(e));                            \
+    e6(r) = det * (e1(e) * e5(e) - e2(e) * e4(e));                             \
+    e7(r) = -det * (e0(e) * e5(e) - e3(e) * e2(e));                            \
+    e8(r) = det * (e0(e) * e4(e) - e3(e) * e1(e));                             \
   } while (0)
 
 #define mat33_transpose(r, e)                                                  \
   do {                                                                         \
-    m3e11(r) = m3e11(e);                                                       \
-    m3e21(r) = m3e12(e);                                                       \
-    m3e31(r) = m3e13(e);                                                       \
-    m3e12(r) = m3e21(e);                                                       \
-    m3e22(r) = m3e22(e);                                                       \
-    m3e32(r) = m3e23(e);                                                       \
-    m3e13(r) = m3e31(e);                                                       \
-    m3e23(r) = m3e32(e);                                                       \
-    m3e33(r) = m3e33(e);                                                       \
+    e0(r) = e0(e);                                                             \
+    e1(r) = e3(e);                                                             \
+    e2(r) = e6(e);                                                             \
+    e3(r) = e1(e);                                                             \
+    e4(r) = e4(e);                                                             \
+    e5(r) = e7(e);                                                             \
+    e6(r) = e2(e);                                                             \
+    e7(r) = e5(e);                                                             \
+    e8(r) = e8(e);                                                             \
   } while (0)
 
 #define mat33_transform2(r, e, v)                                              \
   do {                                                                         \
-    vx(r) = m3e11(e) * vx(v) + m3e12(e) * vy(v) + m3e13(e);                    \
-    vy(r) = m3e21(e) * vx(v) + m3e22(e) * vy(v) + m3e23(e);                    \
+    vx(r) = e0(e) * vx(v) + e3(e) * vy(v) + e6(e);                             \
+    vy(r) = e1(e) * vx(v) + e4(e) * vy(v) + e7(e);                             \
   } while (0)
 
 #define mat33_transform3(r, e, v)                                              \
   do {                                                                         \
-    vx(r) = m3e11(e) * vx(v) + m3e12(e) * vy(v) + m3e13(e) * vz(v);            \
-    vy(r) = m3e21(e) * vx(v) + m3e22(e) * vy(v) + m3e23(e) * vz(v);            \
-    vz(r) = m3e31(e) * vx(v) + m3e32(e) * vy(v) + m3e33(e) * vz(v);            \
+    vx(r) = e0(e) * vx(v) + e3(e) * vy(v) + e6(e) * vz(v);                     \
+    vy(r) = e1(e) * vx(v) + e4(e) * vy(v) + e7(e) * vz(v);                     \
+    vz(r) = e2(e) * vx(v) + e5(e) * vy(v) + e8(e) * vz(v);                     \
   } while (0)
 
 void mat33_transformation(mat33_t r, real_t x, real_t y, real_t theta,
                           real_t sx, real_t sy, real_t ox, real_t oy, real_t kx,
                           real_t ky);
+
+void mat33_rotatex(mat33_t r, real_t theta);
+void mat33_rotatey(mat33_t r, real_t theta);
+void mat33_rotatez(mat33_t r, real_t theta);
+void mat33_rotateaxis(mat33_t r, real_t theta, vec3_t axis);
+
+#define mat33_from44(r, e)                                                     \
+  do {                                                                         \
+    e0(r) = e0(e);                                                             \
+    e1(r) = e1(e);                                                             \
+    e2(r) = e2(e);                                                             \
+    e3(r) = e4(e);                                                             \
+    e4(r) = e5(e);                                                             \
+    e5(r) = e6(e);                                                             \
+    e6(r) = e8(e);                                                             \
+    e7(r) = e9(e);                                                             \
+    e8(r) = e10(e);                                                            \
+  } while (0)
 
 /**
  *---------------------------------------------
@@ -184,280 +249,243 @@ void mat33_transformation(mat33_t r, real_t x, real_t y, real_t theta,
 #define mat44_identity(e)                                                      \
   do {                                                                         \
     mat44_zero(e);                                                             \
-    m4e11(e) = m4e22(e) = m4e33(e) = m4e44(e) = r_one;                         \
+    e0(e) = e5(e) = e10(e) = e15(e) = r_one;                                   \
   } while (0)
 
 #define mat44_translate2(e, v)                                                 \
   do {                                                                         \
     mat44_identity(e);                                                         \
-    m4e14(e) = vx(v);                                                          \
-    m4e24(e) = vy(v);                                                          \
+    e12(e) = vx(v);                                                            \
+    e13(e) = vy(v);                                                            \
   } while (0)
 
 #define mat44_translate3(e, v)                                                 \
   do {                                                                         \
     mat44_identity(e);                                                         \
-    m4e14(e) = vx(v);                                                          \
-    m4e24(e) = vy(v);                                                          \
-    m4e34(e) = vz(v);                                                          \
+    e12(e) = vx(v);                                                            \
+    e13(e) = vy(v);                                                            \
+    e14(e) = vz(v);                                                            \
   } while (0)
 
 #define mat44_scale2(e, v)                                                     \
   do {                                                                         \
     mat44_identity(e);                                                         \
-    m4e11(e) = vx(v);                                                          \
-    m4e22(e) = vy(v);                                                          \
+    e0(e) = vx(v);                                                             \
+    e5(e) = vy(v);                                                             \
   } while (0)
 
 #define mat44_scale3(e, v)                                                     \
   do {                                                                         \
     mat44_identity(e);                                                         \
-    m4e11(e) = vx(v);                                                          \
-    m4e22(e) = vy(v);                                                          \
-    m4e33(e) = vz(v);                                                          \
+    e0(e) = vx(v);                                                             \
+    e5(e) = vy(v);                                                             \
+    e10(e) = vz(v);                                                            \
   } while (0)
 
 #define mat44_shear2(e, v)                                                     \
   do {                                                                         \
     mat44_identity(e);                                                         \
-    m4e21(e) = vx(v);                                                          \
-    m4e12(e) = vy(v);                                                          \
+    e1(e) = vx(v);                                                             \
+    e4(e) = vy(v);                                                             \
   } while (0)
 
 #define mat44_shear3(e, v)                                                     \
   do {                                                                         \
     mat44_identity(e);                                                         \
-    m4e21(e) = m4e31(e) = vx(v);                                               \
-    m4e12(e) = m4e32(e) = vy(v);                                               \
-    m4e13(e) = m4e23(e) = vz(v);                                               \
+    e1(e) = e2(e) = vx(v);                                                     \
+    e4(e) = e6(e) = vy(v);                                                     \
+    e8(e) = e9(e) = vz(v);                                                     \
   } while (0)
 
 #define mat44_add(r, a, b)                                                     \
   do {                                                                         \
-    m4e11(r) = m4e11(a) + m4e11(b);                                            \
-    m4e21(r) = m4e21(a) + m4e21(b);                                            \
-    m4e31(r) = m4e31(a) + m4e31(b);                                            \
-    m4e41(r) = m4e41(a) + m4e41(b);                                            \
-    m4e12(r) = m4e12(a) + m4e12(b);                                            \
-    m4e22(r) = m4e22(a) + m4e22(b);                                            \
-    m4e32(r) = m4e32(a) + m4e32(b);                                            \
-    m4e42(r) = m4e42(a) + m4e42(b);                                            \
-    m4e13(r) = m4e13(a) + m4e13(b);                                            \
-    m4e23(r) = m4e23(a) + m4e23(b);                                            \
-    m4e33(r) = m4e33(a) + m4e33(b);                                            \
-    m4e43(r) = m4e43(a) + m4e43(b);                                            \
-    m4e14(r) = m4e14(a) + m4e14(b);                                            \
-    m4e24(r) = m4e24(a) + m4e24(b);                                            \
-    m4e34(r) = m4e34(a) + m4e34(b);                                            \
-    m4e44(r) = m4e44(a) + m4e44(b);                                            \
+    e0(r) = e0(a) + e0(b);                                                     \
+    e1(r) = e1(a) + e1(b);                                                     \
+    e2(r) = e2(a) + e2(b);                                                     \
+    e3(r) = e3(a) + e3(b);                                                     \
+    e4(r) = e4(a) + e4(b);                                                     \
+    e5(r) = e5(a) + e5(b);                                                     \
+    e6(r) = e6(a) + e6(b);                                                     \
+    e7(r) = e7(a) + e7(b);                                                     \
+    e8(r) = e8(a) + e8(b);                                                     \
+    e9(r) = e9(a) + e9(b);                                                     \
+    e10(r) = e10(a) + e10(b);                                                  \
+    e11(r) = e11(a) + e11(b);                                                  \
+    e12(r) = e12(a) + e12(b);                                                  \
+    e13(r) = e13(a) + e13(b);                                                  \
+    e14(r) = e14(a) + e14(b);                                                  \
+    e15(r) = e15(a) + e15(b);                                                  \
   } while (0)
 
 #define mat44_sub(r, a, b)                                                     \
   do {                                                                         \
-    m4e11(r) = m4e11(a) - m4e11(b);                                            \
-    m4e21(r) = m4e21(a) - m4e21(b);                                            \
-    m4e31(r) = m4e31(a) - m4e31(b);                                            \
-    m4e41(r) = m4e41(a) - m4e41(b);                                            \
-    m4e12(r) = m4e12(a) - m4e12(b);                                            \
-    m4e22(r) = m4e22(a) - m4e22(b);                                            \
-    m4e32(r) = m4e32(a) - m4e32(b);                                            \
-    m4e42(r) = m4e42(a) - m4e42(b);                                            \
-    m4e13(r) = m4e13(a) - m4e13(b);                                            \
-    m4e23(r) = m4e23(a) - m4e23(b);                                            \
-    m4e33(r) = m4e33(a) - m4e33(b);                                            \
-    m4e43(r) = m4e43(a) - m4e43(b);                                            \
-    m4e14(r) = m4e14(a) - m4e14(b);                                            \
-    m4e24(r) = m4e24(a) - m4e24(b);                                            \
-    m4e34(r) = m4e34(a) - m4e34(b);                                            \
-    m4e44(r) = m4e44(a) - m4e44(b);                                            \
+    e0(r) = e0(a) - e0(b);                                                     \
+    e1(r) = e1(a) - e1(b);                                                     \
+    e2(r) = e2(a) - e2(b);                                                     \
+    e3(r) = e3(a) - e3(b);                                                     \
+    e4(r) = e4(a) - e4(b);                                                     \
+    e5(r) = e5(a) - e5(b);                                                     \
+    e6(r) = e6(a) - e6(b);                                                     \
+    e7(r) = e7(a) - e7(b);                                                     \
+    e8(r) = e8(a) - e8(b);                                                     \
+    e9(r) = e9(a) - e9(b);                                                     \
+    e10(r) = e10(a) - e10(b);                                                  \
+    e11(r) = e11(a) - e11(b);                                                  \
+    e12(r) = e12(a) - e12(b);                                                  \
+    e13(r) = e13(a) - e13(b);                                                  \
+    e14(r) = e14(a) - e14(b);                                                  \
+    e15(r) = e15(a) - e15(b);                                                  \
   } while (0)
 
 #define mat44_mul(r, a, b)                                                     \
   do {                                                                         \
-    m4e11(r) = m4e11(a) * m4e11(b) + m4e12(a) * m4e21(b) +                     \
-               m4e13(a) * m4e31(b) + m4e14(a) * m4e41(b);                      \
-    m4e21(r) = m4e21(a) * m4e11(b) + m4e22(a) * m4e21(b) +                     \
-               m4e23(a) * m4e31(b) + m4e24(a) * m4e41(b);                      \
-    m4e31(r) = m4e31(a) * m4e11(b) + m4e32(a) * m4e21(b) +                     \
-               m4e33(a) * m4e31(b) + m4e34(a) * m4e41(b);                      \
-    m4e41(r) = m4e41(a) * m4e11(b) + m4e42(a) * m4e21(b) +                     \
-               m4e43(a) * m4e31(b) + m4e44(a) * m4e41(b);                      \
-    m4e12(r) = m4e11(a) * m4e12(b) + m4e12(a) * m4e22(b) +                     \
-               m4e13(a) * m4e32(b) + m4e14(a) * m4e42(b);                      \
-    m4e22(r) = m4e21(a) * m4e12(b) + m4e22(a) * m4e22(b) +                     \
-               m4e23(a) * m4e32(b) + m4e24(a) * m4e42(b);                      \
-    m4e32(r) = m4e31(a) * m4e12(b) + m4e32(a) * m4e22(b) +                     \
-               m4e33(a) * m4e32(b) + m4e34(a) * m4e42(b);                      \
-    m4e42(r) = m4e41(a) * m4e12(b) + m4e42(a) * m4e22(b) +                     \
-               m4e43(a) * m4e32(b) + m4e44(a) * m4e42(b);                      \
-    m4e13(r) = m4e11(a) * m4e13(b) + m4e12(a) * m4e23(b) +                     \
-               m4e13(a) * m4e33(b) + m4e14(a) * m4e43(b);                      \
-    m4e23(r) = m4e21(a) * m4e13(b) + m4e22(a) * m4e23(b) +                     \
-               m4e23(a) * m4e33(b) + m4e24(a) * m4e43(b);                      \
-    m4e33(r) = m4e31(a) * m4e13(b) + m4e32(a) * m4e23(b) +                     \
-               m4e33(a) * m4e33(b) + m4e34(a) * m4e43(b);                      \
-    m4e43(r) = m4e41(a) * m4e13(b) + m4e42(a) * m4e23(b) +                     \
-               m4e43(a) * m4e33(b) + m4e44(a) * m4e43(b);                      \
-    m4e14(r) = m4e11(a) * m4e14(b) + m4e12(a) * m4e24(b) +                     \
-               m4e13(a) * m4e34(b) + m4e14(a) * m4e44(b);                      \
-    m4e24(r) = m4e21(a) * m4e14(b) + m4e22(a) * m4e24(b) +                     \
-               m4e23(a) * m4e34(b) + m4e24(a) * m4e44(b);                      \
-    m4e34(r) = m4e31(a) * m4e14(b) + m4e32(a) * m4e24(b) +                     \
-               m4e33(a) * m4e34(b) + m4e34(a) * m4e44(b);                      \
-    m4e44(r) = m4e41(a) * m4e14(b) + m4e42(a) * m4e24(b) +                     \
-               m4e43(a) * m4e34(b) + m4e44(a) * m4e44(b);                      \
+    e0(r) = e0(a) * e0(b) + e4(a) * e1(b) + e8(a) * e2(b) + e12(a) * e3(b);    \
+    e4(r) = e0(a) * e4(b) + e4(a) * e5(b) + e8(a) * e6(b) + e12(a) * e7(b);    \
+    e8(r) = e0(a) * e8(b) + e4(a) * e9(b) + e8(a) * e10(b) + e12(a) * e11(b);  \
+    e12(r) =                                                                   \
+        e0(a) * e12(b) + e4(a) * e13(b) + e8(a) * e14(b) + e12(a) * e15(b);    \
+    e1(r) = e1(a) * e0(b) + e5(a) * e1(b) + e9(a) * e2(b) + e13(a) * e3(b);    \
+    e5(r) = e1(a) * e4(b) + e5(a) * e5(b) + e9(a) * e6(b) + e13(a) * e7(b);    \
+    e9(r) = e1(a) * e8(b) + e5(a) * e9(b) + e9(a) * e10(b) + e13(a) * e11(b);  \
+    e13(r) =                                                                   \
+        e1(a) * e12(b) + e5(a) * e13(b) + e9(a) * e14(b) + e13(a) * e15(b);    \
+    e2(r) = e2(a) * e0(b) + e6(a) * e1(b) + e10(a) * e2(b) + e14(a) * e3(b);   \
+    e6(r) = e2(a) * e4(b) + e6(a) * e5(b) + e10(a) * e6(b) + e14(a) * e7(b);   \
+    e10(r) =                                                                   \
+        e2(a) * e8(b) + e6(a) * e9(b) + e10(a) * e10(b) + e14(a) * e11(b);     \
+    e14(r) =                                                                   \
+        e2(a) * e12(b) + e6(a) * e13(b) + e10(a) * e14(b) + e14(a) * e15(b);   \
+    e3(r) = e3(a) * e0(b) + e7(a) * e1(b) + e11(a) * e2(b) + e15(a) * e3(b);   \
+    e7(r) = e3(a) * e4(b) + e7(a) * e5(b) + e11(a) * e6(b) + e15(a) * e7(b);   \
+    e11(r) =                                                                   \
+        e3(a) * e8(b) + e7(a) * e9(b) + e11(a) * e10(b) + e15(a) * e11(b);     \
+    e15(r) =                                                                   \
+        e3(a) * e12(b) + e7(a) * e13(b) + e11(a) * e14(b) + e15(a) * e15(b);   \
   } while (0)
 
 #define mat44_determinant(e)                                                   \
-  (m4e41(e) *                                                                  \
-       (+m4e14(e) * m4e23(e) * m4e32(e) - m4e13(e) * m4e24(e) * m4e32(e) -     \
-        m4e14(e) * m4e22(e) * m4e33(e) + m4e12(e) * m4e24(e) * m4e33(e) +      \
-        m4e13(e) * m4e22(e) * m4e34(e) - m4e12(e) * m4e23(e) * m4e34(e)) +     \
-   m4e42(e) *                                                                  \
-       (+m4e11(e) * m4e23(e) * m4e34(e) - m4e11(e) * m4e24(e) * m4e33(e) +     \
-        m4e14(e) * m4e21(e) * m4e33(e) - m4e13(e) * m4e21(e) * m4e34(e) +      \
-        m4e13(e) * m4e24(e) * m4e31(e) - m4e14(e) * m4e23(e) * m4e31(e)) +     \
-   m4e43(e) *                                                                  \
-       (+m4e11(e) * m4e24(e) * m4e32(e) - m4e11(e) * m4e22(e) * m4e34(e) -     \
-        m4e14(e) * m4e21(e) * m4e32(e) + m4e12(e) * m4e21(e) * m4e34(e) +      \
-        m4e14(e) * m4e22(e) * m4e31(e) - m4e12(e) * m4e24(e) * m4e31(e)) +     \
-   m4e44(e) *                                                                  \
-       (-m4e13(e) * m4e22(e) * m4e31(e) - m4e11(e) * m4e23(e) * m4e32(e) +     \
-        m4e11(e) * m4e22(e) * m4e33(e) + m4e13(e) * m4e21(e) * m4e32(e) -      \
-        m4e12(e) * m4e21(e) * m4e33(e) + m4e12(e) * m4e23(e) * m4e31(e)))
+  (e3(e) * (e12(e) * e9(e) * e6(e) - e8(e) * e13(e) * e6(e) -                  \
+            e12(e) * e5(e) * e10(e) + e4(e) * e13(e) * e10(e) +                \
+            e8(e) * e5(e) * e14(e) - e4(e) * e9(e) * e14(e)) +                 \
+   e7(e) * (e0(e) * e9(e) * e14(e) - e0(e) * e13(e) * e10(e) +                 \
+            e12(e) * e1(e) * e10(e) - e8(e) * e1(e) * e14(e) +                 \
+            e12(e) * e13(e) * e2(e) - e12(e) * e9(e) * e2(e)) +                \
+   e11(e) * (e0(e) * e13(e) * e6(e) - e0(e) * e5(e) * e14(e) -                 \
+             e12(e) * e1(e) * e6(e) + e4(e) * e1(e) * e14(e) +                 \
+             e12(e) * e5(e) * e2(e) - e4(e) * e13(e) * e2(e)) +                \
+   e15(e) * (-e8(e) * e5(e) * e2(e) - e0(e) * e9(e) * e6(e) +                  \
+             e0(e) * e5(e) * e10(e) + e8(e) * e1(e) * e6(e) -                  \
+             e4(e) * e1(e) * e10(e) + e4(e) * e9(e) * e2(e)))
 
 #define mat44_inverse(r, e)                                                    \
   do {                                                                         \
     real_t det = mat44_determinant(e);                                         \
     det = r_one / det;                                                         \
-    m4e11(r) =                                                                 \
-        det *                                                                  \
-        (m4e23(e) * m4e34(e) * m4e42(e) - m4e24(e) * m4e33(e) * m4e42(e) +     \
-         m4e24(e) * m4e32(e) * m4e43(e) - m4e22(e) * m4e34(e) * m4e43(e) -     \
-         m4e23(e) * m4e32(e) * m4e44(e) + m4e22(e) * m4e33(e) * m4e44(e));     \
-    m4e21(r) =                                                                 \
-        det *                                                                  \
-        (m4e24(e) * m4e33(e) * m4e41(e) - m4e23(e) * m4e34(e) * m4e41(e) -     \
-         m4e24(e) * m4e31(e) * m4e43(e) + m4e21(e) * m4e34(e) * m4e43(e) +     \
-         m4e23(e) * m4e31(e) * m4e44(e) - m4e21(e) * m4e33(e) * m4e44(e));     \
-    m4e31(r) =                                                                 \
-        det *                                                                  \
-        (m4e22(e) * m4e34(e) * m4e41(e) - m4e24(e) * m4e32(e) * m4e41(e) +     \
-         m4e24(e) * m4e31(e) * m4e42(e) - m4e21(e) * m4e34(e) * m4e42(e) -     \
-         m4e22(e) * m4e31(e) * m4e44(e) + m4e21(e) * m4e32(e) * m4e44(e));     \
-    m4e41(r) =                                                                 \
-        det *                                                                  \
-        (m4e23(e) * m4e32(e) * m4e41(e) - m4e22(e) * m4e33(e) * m4e41(e) -     \
-         m4e23(e) * m4e31(e) * m4e42(e) + m4e21(e) * m4e33(e) * m4e42(e) +     \
-         m4e22(e) * m4e31(e) * m4e43(e) - m4e21(e) * m4e32(e) * m4e43(e));     \
-    m4e12(r) =                                                                 \
-        det *                                                                  \
-        (m4e14(e) * m4e33(e) * m4e42(e) - m4e13(e) * m4e34(e) * m4e42(e) -     \
-         m4e14(e) * m4e32(e) * m4e43(e) + m4e12(e) * m4e34(e) * m4e43(e) +     \
-         m4e13(e) * m4e32(e) * m4e44(e) - m4e12(e) * m4e33(e) * m4e44(e));     \
-    m4e22(r) =                                                                 \
-        det *                                                                  \
-        (m4e13(e) * m4e34(e) * m4e41(e) - m4e14(e) * m4e33(e) * m4e41(e) +     \
-         m4e14(e) * m4e31(e) * m4e43(e) - m4e11(e) * m4e34(e) * m4e43(e) -     \
-         m4e13(e) * m4e31(e) * m4e44(e) + m4e11(e) * m4e33(e) * m4e44(e));     \
-    m4e32(r) =                                                                 \
-        det *                                                                  \
-        (m4e14(e) * m4e32(e) * m4e41(e) - m4e12(e) * m4e34(e) * m4e41(e) -     \
-         m4e14(e) * m4e31(e) * m4e42(e) + m4e11(e) * m4e34(e) * m4e42(e) +     \
-         m4e12(e) * m4e31(e) * m4e44(e) - m4e11(e) * m4e32(e) * m4e44(e));     \
-    m4e42(r) =                                                                 \
-        det *                                                                  \
-        (m4e12(e) * m4e33(e) * m4e41(e) - m4e13(e) * m4e32(e) * m4e41(e) +     \
-         m4e13(e) * m4e31(e) * m4e42(e) - m4e11(e) * m4e33(e) * m4e42(e) -     \
-         m4e12(e) * m4e31(e) * m4e43(e) + m4e11(e) * m4e32(e) * m4e43(e));     \
-    m4e13(r) =                                                                 \
-        det *                                                                  \
-        (m4e13(e) * m4e24(e) * m4e42(e) - m4e14(e) * m4e23(e) * m4e42(e) +     \
-         m4e14(e) * m4e22(e) * m4e43(e) - m4e12(e) * m4e24(e) * m4e43(e) -     \
-         m4e13(e) * m4e22(e) * m4e44(e) + m4e12(e) * m4e23(e) * m4e44(e));     \
-    m4e23(r) =                                                                 \
-        det *                                                                  \
-        (m4e14(e) * m4e23(e) * m4e41(e) - m4e13(e) * m4e24(e) * m4e41(e) -     \
-         m4e14(e) * m4e21(e) * m4e43(e) + m4e11(e) * m4e24(e) * m4e43(e) +     \
-         m4e13(e) * m4e21(e) * m4e44(e) - m4e11(e) * m4e23(e) * m4e44(e));     \
-    m4e33(r) =                                                                 \
-        det *                                                                  \
-        (m4e12(e) * m4e24(e) * m4e41(e) - m4e14(e) * m4e22(e) * m4e41(e) +     \
-         m4e14(e) * m4e21(e) * m4e42(e) - m4e11(e) * m4e24(e) * m4e42(e) -     \
-         m4e12(e) * m4e21(e) * m4e44(e) + m4e11(e) * m4e22(e) * m4e44(e));     \
-    m4e43(r) =                                                                 \
-        det *                                                                  \
-        (m4e13(e) * m4e22(e) * m4e41(e) - m4e12(e) * m4e23(e) * m4e41(e) -     \
-         m4e13(e) * m4e21(e) * m4e42(e) + m4e11(e) * m4e23(e) * m4e42(e) +     \
-         m4e12(e) * m4e21(e) * m4e43(e) - m4e11(e) * m4e22(e) * m4e43(e));     \
-    m4e14(r) =                                                                 \
-        det *                                                                  \
-        (m4e14(e) * m4e23(e) * m4e32(e) - m4e13(e) * m4e24(e) * m4e32(e) -     \
-         m4e14(e) * m4e22(e) * m4e33(e) + m4e12(e) * m4e24(e) * m4e33(e) +     \
-         m4e13(e) * m4e22(e) * m4e34(e) - m4e12(e) * m4e23(e) * m4e34(e));     \
-    m4e24(r) =                                                                 \
-        det *                                                                  \
-        (m4e13(e) * m4e24(e) * m4e31(e) - m4e14(e) * m4e23(e) * m4e31(e) +     \
-         m4e14(e) * m4e21(e) * m4e33(e) - m4e11(e) * m4e24(e) * m4e33(e) -     \
-         m4e13(e) * m4e21(e) * m4e34(e) + m4e11(e) * m4e23(e) * m4e34(e));     \
-    m4e34(r) =                                                                 \
-        det *                                                                  \
-        (m4e14(e) * m4e22(e) * m4e31(e) - m4e12(e) * m4e24(e) * m4e31(e) -     \
-         m4e14(e) * m4e21(e) * m4e32(e) + m4e11(e) * m4e24(e) * m4e32(e) +     \
-         m4e12(e) * m4e21(e) * m4e34(e) - m4e11(e) * m4e22(e) * m4e34(e));     \
-    m4e44(r) =                                                                 \
-        det *                                                                  \
-        (m4e12(e) * m4e23(e) * m4e31(e) - m4e13(e) * m4e22(e) * m4e31(e) +     \
-         m4e13(e) * m4e21(e) * m4e32(e) - m4e11(e) * m4e23(e) * m4e32(e) -     \
-         m4e12(e) * m4e21(e) * m4e33(e) + m4e11(e) * m4e22(e) * m4e33(e));     \
+    e0(r) = det * (e9(e) * e14(e) * e7(e) - e13(e) * e10(e) * e7(e) +          \
+                   e13(e) * e6(e) * e11(e) - e5(e) * e14(e) * e11(e) -         \
+                   e9(e) * e6(e) * e15(e) + e5(e) * e10(e) * e15(e));          \
+    e1(r) = det * (e13(e) * e10(e) * e3(e) - e9(e) * e14(e) * e3(e) -          \
+                   e13(e) * e2(e) * e11(e) + e1(e) * e14(e) * e11(e) +         \
+                   e9(e) * e2(e) * e15(e) - e1(e) * e10(e) * e15(e));          \
+    e2(r) = det * (e5(e) * e14(e) * e3(e) - e13(e) * e6(e) * e3(e) +           \
+                   e13(e) * e2(e) * e7(e) - e1(e) * e14(e) * e7(e) -           \
+                   e5(e) * e2(e) * e15(e) + e1(e) * e6(e) * e15(e));           \
+    e3(r) = det * (e9(e) * e6(e) * e3(e) - e5(e) * e10(e) * e3(e) -            \
+                   e9(e) * e2(e) * e7(e) + e1(e) * e10(e) * e7(e) +            \
+                   e5(e) * e2(e) * e11(e) - e1(e) * e6(e) * e11(e));           \
+    e4(r) = det * (e12(e) * e10(e) * e7(e) - e8(e) * e14(e) * e7(e) -          \
+                   e12(e) * e6(e) * e11(e) + e4(e) * e14(e) * e11(e) +         \
+                   e8(e) * e6(e) * e15(e) - e4(e) * e10(e) * e15(e));          \
+    e5(r) = det * (e8(e) * e14(e) * e3(e) - e12(e) * e10(e) * e3(e) +          \
+                   e12(e) * e2(e) * e11(e) - e0(e) * e14(e) * e11(e) -         \
+                   e8(e) * e2(e) * e15(e) + e0(e) * e10(e) * e15(e));          \
+    e6(r) = det * (e12(e) * e6(e) * e3(e) - e4(e) * e14(e) * e3(e) -           \
+                   e12(e) * e2(e) * e7(e) + e0(e) * e14(e) * e7(e) +           \
+                   e4(e) * e2(e) * e15(e) - e0(e) * e6(e) * e15(e));           \
+    e7(r) = det * (e4(e) * e10(e) * e3(e) - e8(e) * e6(e) * e3(e) +            \
+                   e8(e) * e2(e) * e7(e) - e0(e) * e10(e) * e7(e) -            \
+                   e4(e) * e2(e) * e11(e) + e0(e) * e6(e) * e11(e));           \
+    e8(r) = det * (e8(e) * e13(e) * e7(e) - e12(e) * e9(e) * e7(e) +           \
+                   e12(e) * e5(e) * e11(e) - e4(e) * e13(e) * e11(e) -         \
+                   e8(e) * e5(e) * e15(e) + e4(e) * e9(e) * e15(e));           \
+    e9(r) = det * (e12(e) * e9(e) * e3(e) - e8(e) * e13(e) * e3(e) -           \
+                   e12(e) * e1(e) * e11(e) + e0(e) * e13(e) * e11(e) +         \
+                   e8(e) * e1(e) * e15(e) - e0(e) * e9(e) * e15(e));           \
+    e10(r) = det * (e4(e) * e13(e) * e3(e) - e12(e) * e5(e) * e3(e) +          \
+                    e12(e) * e1(e) * e7(e) - e0(e) * e13(e) * e7(e) -          \
+                    e4(e) * e1(e) * e15(e) + e0(e) * e5(e) * e15(e));          \
+    e11(r) = det * (e8(e) * e5(e) * e3(e) - e4(e) * e9(e) * e3(e) -            \
+                    e8(e) * e1(e) * e7(e) + e0(e) * e9(e) * e7(e) +            \
+                    e4(e) * e1(e) * e11(e) - e0(e) * e5(e) * e11(e));          \
+    e12(r) = det * (e12(e) * e9(e) * e6(e) - e8(e) * e13(e) * e6(e) -          \
+                    e12(e) * e5(e) * e10(e) + e4(e) * e13(e) * e10(e) +        \
+                    e8(e) * e5(e) * e14(e) - e4(e) * e9(e) * e14(e));          \
+    e13(r) = det * (e8(e) * e13(e) * e2(e) - e12(e) * e9(e) * e2(e) +          \
+                    e12(e) * e1(e) * e10(e) - e0(e) * e13(e) * e10(e) -        \
+                    e8(e) * e1(e) * e14(e) + e0(e) * e9(e) * e14(e));          \
+    e14(r) = det * (e12(e) * e5(e) * e2(e) - e4(e) * e13(e) * e2(e) -          \
+                    e12(e) * e1(e) * e6(e) + e0(e) * e13(e) * e6(e) +          \
+                    e4(e) * e1(e) * e14(e) - e0(e) * e5(e) * e14(e));          \
+    e15(r) = det * (e4(e) * e9(e) * e2(e) - e8(e) * e5(e) * e2(e) +            \
+                    e8(e) * e1(e) * e6(e) - e0(e) * e9(e) * e6(e) -            \
+                    e4(e) * e1(e) * e10(e) + e0(e) * e5(e) * e10(e));          \
   } while (0)
 
 #define mat44_transpose(r, e)                                                  \
   do {                                                                         \
-    m4e11(r) = m4e11(e);                                                       \
-    m4e21(r) = m4e12(e);                                                       \
-    m4e31(r) = m4e13(e);                                                       \
-    m4e41(r) = m4e14(e);                                                       \
-    m4e12(r) = m4e21(e);                                                       \
-    m4e22(r) = m4e22(e);                                                       \
-    m4e32(r) = m4e23(e);                                                       \
-    m4e42(r) = m4e24(e);                                                       \
-    m4e13(r) = m4e31(e);                                                       \
-    m4e23(r) = m4e32(e);                                                       \
-    m4e33(r) = m4e33(e);                                                       \
-    m4e43(r) = m4e34(e);                                                       \
-    m4e14(r) = m4e41(e);                                                       \
-    m4e24(r) = m4e42(e);                                                       \
-    m4e34(r) = m4e43(e);                                                       \
-    m4e44(r) = m4e44(e);                                                       \
+    e0(r) = e0(e);                                                             \
+    e1(r) = e4(e);                                                             \
+    e2(r) = e8(e);                                                             \
+    e3(r) = e12(e);                                                            \
+    e4(r) = e1(e);                                                             \
+    e5(r) = e5(e);                                                             \
+    e6(r) = e9(e);                                                             \
+    e7(r) = e13(e);                                                            \
+    e8(r) = e2(e);                                                             \
+    e9(r) = e6(e);                                                             \
+    e10(r) = e10(e);                                                           \
+    e11(r) = e14(e);                                                           \
+    e12(r) = e3(e);                                                            \
+    e13(r) = e7(e);                                                            \
+    e14(r) = e11(e);                                                           \
+    e15(r) = e15(e);                                                           \
   } while (0)
 
 #define mat44_transform2(r, e, v)                                              \
   do {                                                                         \
-    vx(r) = m4e11(e) * vx(v) + m4e12(e) * vy(v) + m4e14(e);                    \
-    vy(r) = m4e21(e) * vx(v) + m4e22(e) * vy(v) + m4e24(e);                    \
+    vx(r) = e0(e) * vx(v) + e4(e) * vy(v) + e12(e);                            \
+    vy(r) = e1(e) * vx(v) + e5(e) * vy(v) + e13(e);                            \
   } while (0)
 
 #define mat44_transform3(r, e, v)                                              \
   do {                                                                         \
-    vx(r) = m4e11(e) * vx(v) + m4e12(e) * vy(v) + m4e13(e) * vz(v) + m4e14(e); \
-    vy(r) = m4e21(e) * vx(v) + m4e22(e) * vy(v) + m4e23(e) * vz(v) + m4e24(e); \
-    vz(r) = m4e31(e) * vx(v) + m4e32(e) * vy(v) + m4e33(e) * vz(v) + m4e34(e); \
+    vx(r) = e0(e) * vx(v) + e4(e) * vy(v) + e8(e) * vz(v) + e12(e);            \
+    vy(r) = e1(e) * vx(v) + e5(e) * vy(v) + e9(e) * vz(v) + e13(e);            \
+    vz(r) = e2(e) * vx(v) + e6(e) * vy(v) + e10(e) * vz(v) + e14(e);           \
   } while (0)
 
 void mat44_transformation(mat44_t r, real_t x, real_t y, real_t theta,
                           real_t sx, real_t sy, real_t ox, real_t oy, real_t kx,
                           real_t ky);
 
-void mat44_rotatex(mat44_t r, real_t theta);
-void mat44_rotatey(mat44_t r, real_t theta);
-void mat44_rotatez(mat44_t r, real_t theta);
-void mat44_rotateaxis(mat44_t r, real_t theta, vec3_t axis);
-
 void mat44_ortho(mat44_t r, real_t left, real_t right, real_t bottom,
                  real_t top, real_t near, real_t far);
 void mat44_perspective(mat44_t r, real_t fovy, real_t aspect, real_t near,
                        real_t far);
+
+#define mat44_from33(r, e)                                                     \
+  do {                                                                         \
+    mat44_identity(r);                                                         \
+    e0(r) = e0(e);                                                             \
+    e1(r) = e1(e);                                                             \
+    e2(r) = e2(e);                                                             \
+    e4(r) = e3(e);                                                             \
+    e5(r) = e4(e);                                                             \
+    e6(r) = e5(e);                                                             \
+    e8(r) = e6(e);                                                             \
+    e9(r) = e7(e);                                                             \
+    e10(r) = e8(e);                                                            \
+  } while (0)
 
 #ifdef __cplusplus
 };
