@@ -151,6 +151,89 @@ void mat44_transformation(mat44_t r, real_t x, real_t y, real_t theta,
   e10(r) = e15(r) = r_one;
 }
 
+void mat44_rotatex(mat44_t r, real_t theta) {
+  real_t c = r_cos(theta);
+  real_t s = r_sin(theta);
+
+  /**
+   * | 1  0  0  0 |
+   * | 0  c -s  0 |
+   * | 0  s  c  0 |
+   * | 0  0  0  1 |
+   **/
+
+  mat44_identity(r);
+  e5(r) = c;
+  e6(r) = s;
+  e9(r) = -s;
+  e10(r) = c;
+}
+
+void mat44_rotatey(mat44_t r, real_t theta) {
+  real_t c = r_cos(theta);
+  real_t s = r_sin(theta);
+
+  /**
+   * |  c  0  s  0 |
+   * |  0  1  0  0 |
+   * | -s  0  c  0 |
+   * |  0  0  0  1 |
+   **/
+
+  mat44_identity(r);
+  e0(r) = c;
+  e2(r) = -s;
+  e8(r) = s;
+  e10(r) = c;
+}
+
+void mat44_rotatez(mat44_t r, real_t theta) {
+  real_t c = r_cos(theta);
+  real_t s = r_sin(theta);
+
+  /**
+   * | c -s  0  0 |
+   * | s  c  0  0 |
+   * | 0  0  1  0 |
+   * | 0  0  0  1 |
+   **/
+
+  mat44_identity(r);
+  e0(r) = c;
+  e1(r) = s;
+  e4(r) = -s;
+  e5(r) = c;
+}
+
+void mat44_rotateaxis(mat44_t r, real_t theta, vec3_t axis) {
+  real_t c = r_cos(theta);
+  real_t s = r_sin(theta);
+  real_t t = 1 - c;
+  real_t xx = vx(axis) * vx(axis);
+  real_t xy = vx(axis) * vy(axis);
+  real_t xz = vx(axis) * vz(axis);
+  real_t yy = vy(axis) * vy(axis);
+  real_t yz = vy(axis) * vz(axis);
+  real_t zz = vz(axis) * vz(axis);
+  real_t xs = vx(axis) * s;
+  real_t ys = vy(axis) * s;
+  real_t zs = vz(axis) * s;
+
+  mat44_identity(r);
+
+  e0(r) = xx * t + c;
+  e4(r) = xy * t - zs;
+  e8(r) = xz * t + ys;
+
+  e1(r) = xy * t + zs;
+  e5(r) = yy * t + c;
+  e9(r) = yz * t - xs;
+
+  e2(r) = xz * t - ys;
+  e6(r) = yz * t + xs;
+  e10(r) = zz * t + c;
+}
+
 void mat44_ortho(mat44_t r, real_t left, real_t right, real_t bottom,
                  real_t top, real_t near, real_t far) {
   real_t rml = right - left;

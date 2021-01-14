@@ -487,6 +487,11 @@ void mat44_transformation(mat44_t r, real_t x, real_t y, real_t theta,
                           real_t sx, real_t sy, real_t ox, real_t oy, real_t kx,
                           real_t ky);
 
+void mat44_rotatex(mat44_t r, real_t theta);
+void mat44_rotatey(mat44_t r, real_t theta);
+void mat44_rotatez(mat44_t r, real_t theta);
+void mat44_rotateaxis(mat44_t r, real_t theta, vec3_t axis);
+
 void mat44_ortho(mat44_t r, real_t left, real_t right, real_t bottom,
                  real_t top, real_t near, real_t far);
 void mat44_frustum(mat44_t r, real_t left, real_t right, real_t bottom,
