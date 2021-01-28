@@ -119,6 +119,12 @@ typedef real_t mat44_t[16];
     e3(r) = e3(e);                                                             \
   } while (0)
 
+#define mat22_transform2(r, e, v)                                              \
+  do {                                                                         \
+    vx(r) = e0(e) * vx(v) + e2(e) * vy(v);                                     \
+    vy(r) = e1(e) * vx(v) + e3(e) * vy(v);                                     \
+  } while (0)
+
 void mat22_rotation(mat22_t r, real_t theta);
 
 /**
@@ -481,6 +487,14 @@ void mat33_rotateaxis(mat33_t r, real_t theta, vec3_t axis);
     vx(r) = e0(e) * vx(v) + e4(e) * vy(v) + e8(e) * vz(v) + e12(e);            \
     vy(r) = e1(e) * vx(v) + e5(e) * vy(v) + e9(e) * vz(v) + e13(e);            \
     vz(r) = e2(e) * vx(v) + e6(e) * vy(v) + e10(e) * vz(v) + e14(e);           \
+  } while (0)
+
+#define mat44_transform4(r, e, v)                                              \
+  do {                                                                         \
+    vx(r) = e0(e) * vx(v) + e4(e) * vy(v) + e8(e) * vz(v) + e12(e) * vw(v);    \
+    vy(r) = e1(e) * vx(v) + e5(e) * vy(v) + e9(e) * vz(v) + e13(e) * vw(v);    \
+    vz(r) = e2(e) * vx(v) + e6(e) * vy(v) + e10(e) * vz(v) + e14(e) * vw(v);   \
+    vw(r) = e3(e) * vx(v) + e7(e) * vy(v) + e11(e) * vz(v) + e15(e) * vw(v);   \
   } while (0)
 
 void mat44_transformation(mat44_t r, real_t x, real_t y, real_t theta,
