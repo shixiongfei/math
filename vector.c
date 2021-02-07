@@ -60,9 +60,7 @@ void vec3_rotate_z(vec3_t r, const vec3_t v, real_t theta) {
   real_t sin_theta = r_sin(theta);
 
   vx(r) = vx(v) * cos_theta - vy(v) * sin_theta;
-  ;
   vy(r) = vx(v) * sin_theta + vy(v) * cos_theta;
-  ;
   vz(r) = vz(v);
 }
 
